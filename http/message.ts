@@ -20,22 +20,22 @@ export default class HttpMessage {
     return this.messageBody;
   }
 
-  setStartLine(startLine: string): HttpMessage {
+  setStartLine(startLine: string): this {
     this.startLine = startLine;
     return this;
   }
 
-  setVersion(version: string): HttpMessage {
+  setVersion(version: string): this {
     this.version = version;
     return this;
   }
 
-  setHeader(key: string, value: string): HttpMessage {
+  setHeader(key: string, value: string): this {
     this.header[key] = value;
     return this;
   }
 
-  setMessageBody(body: any): HttpMessage {
+  setMessageBody(body: any): this {
     this.messageBody = body;
     return this;
   }
