@@ -23,11 +23,6 @@ export class HttpResponse extends HttpMessage {
     return this;
   }
 
-  setMessageBody(body: any): HttpResponse {
-    this.setMessageBody(body);
-    return this;
-  }
-
   setStatusMessage(message: string): HttpMessage {
     this.statusMessage = message;
     return this;
