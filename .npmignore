@@ -27,4 +27,8 @@ tsconfig*.json
 
 .vscode/
 
+.eslintrc.js
+.prettierrc
+index.ts
+
 http/
