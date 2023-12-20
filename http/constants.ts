@@ -18,7 +18,17 @@ type ContentType =
   | 'image/svg+xml'
   | 'application/json';
 
-export const METHODS: { [key in HttpMethods]: HttpMethods } = {
+type FileExtension =
+  | 'HTML'
+  | 'CSS'
+  | 'JS'
+  | 'ICO'
+  | 'PNG'
+  | 'JPG'
+  | 'SVG'
+  | 'JSON';
+
+export const METHODS: Record<HttpMethods, HttpMethods> = {
   GET: 'GET',
   HEAD: 'HEAD',
   PUT: 'PUT',
@@ -29,7 +39,7 @@ export const METHODS: { [key in HttpMethods]: HttpMethods } = {
   OPTIONS: 'OPTIONS',
 };
 
-export const CONTENT_TYPE: { [key: string]: ContentType } = {
+export const CONTENT_TYPE: Record<FileExtension, ContentType> = {
   HTML: 'text/html',
   CSS: 'text/css',
   JS: 'text/javascript',
@@ -40,16 +50,27 @@ export const CONTENT_TYPE: { [key: string]: ContentType } = {
   JSON: 'application/json',
 };
 
-export const STATUS_CODES: { [key: number]: string } = {
+export const STATUS_CODES: Record<number, string> = {
+  100: 'Continue',
+  101: 'Switching Protocols',
   200: 'OK',
   201: 'Created',
+  204: 'No Content',
+  301: 'Moved Permanently',
   302: 'Found',
+  304: 'Not Modified',
   400: 'Bad Request',
   401: 'Unauthorized',
+  402: 'Payment Required',
   403: 'Forbidden',
   404: 'Not Found',
+  405: 'Method Not Allowed',
   409: 'Conflict',
+  429: 'Too Many Requests',
   500: 'Internal Error',
+  501: 'Not Implemented',
+  502: 'Bad Gateway',
+  503: 'Service Unavailable',
 };
 
 export const CRLF: string = '\r\n';
