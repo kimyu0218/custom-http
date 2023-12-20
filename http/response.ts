@@ -2,7 +2,7 @@ import net from 'net';
 import { CONTENT_TYPE, CRLF, STATUS_CODES } from './constants';
 import HttpMessage from './message';
 
-export default class HttpResponse extends HttpMessage {
+export class HttpResponse extends HttpMessage {
   private readonly socket: net.Socket;
   private statusCode: number = 200;
   private statusMessage: string = STATUS_CODES[200];

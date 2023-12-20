@@ -1,7 +1,7 @@
 import HttpMessage from './message';
 import parseMessage from './parser';
 
-export default class HttpRequest extends HttpMessage {
+export class HttpRequest extends HttpMessage {
   private method: string;
   private path: string;
   private query?: Record<string, string>;
