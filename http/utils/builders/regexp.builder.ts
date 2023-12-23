@@ -12,7 +12,9 @@ export default class RegExpBuilder {
   }
 
   build(): RegExp {
-    return this.flag ? new RegExp(this.regExp, this.flag) : new RegExp(this.regExp);
+    return this.flag
+      ? new RegExp(this.regExp, this.flag)
+      : new RegExp(this.regExp);
   }
 
   setFlags(flag: string): RegExpBuilder {
