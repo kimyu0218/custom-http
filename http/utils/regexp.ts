@@ -1,5 +1,5 @@
-import { CRLF, SP } from './constants';
-import RegExpBuilder from './utils/builders/regexp.builder';
+import { CRLF, SP } from '../constants';
+import RegExpBuilder from './builders/regexp.builder';
 
 const METHODS: string = 'GET|HEAD|PUT|POST|PATCH|DELETE|TRACE|OPTIONS';
 export const NEWLINE: RegExp = /\r\n/g;

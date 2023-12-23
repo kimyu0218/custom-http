@@ -9,7 +9,7 @@ import {
   NEWLINE,
   REQUEST_LINE,
   X_WWW_FORM_URLENCODED,
-} from '../../regexp';
+} from '../regexp';
 
 /**
  * Parse the HTTP request message
