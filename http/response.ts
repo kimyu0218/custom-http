@@ -1,20 +1,52 @@
-import net from 'net';
-import { CONTENT_TYPE, CRLF, STATUS_CODES } from './constants';
+import { Socket } from 'net';
+import { CONTENT_TYPE, CRLF, SP, STATUS_CODES } from './constants';
 import HttpMessage from './message';
+import StringBuilder from './utils/builders/string.builder';
 
 export class HttpResponse extends HttpMessage {
-  private readonly socket: net.Socket;
+  private readonly socket: Socket;
   private statusCode: number = 200;
   private statusMessage: string = STATUS_CODES[200];
 
-  constructor(socket: net.Socket) {
+  constructor(socket: Socket) {
     super();
     this.socket = socket;
   }
 
+  /**
+   * Send the HTTP resposne to the client
+   */
+  send(): void {
+    this.socket.write(this.getMessage());
+    this.socket.end();
+  }
+
+  /**
+   * Throw an HTTP error with the specified status code and optional message
+   * @param {number} statusCode
+   * @param {string} [message]
+   * @returns {HttpResponse}
+   */
+  throwError(statusCode: number, message?: string): HttpResponse {
+    this.statusCode = statusCode;
+    this.statusMessage = STATUS_CODES[statusCode];
+    this.setMessageBody(message ? message : this.statusMessage);
+    this.setHeader('Content-Type', `${CONTENT_TYPE.HTML}; charset=utf-8`);
+    return this;
+  }
+
+  /**
+   * Get the complete HTTP response message
+   * @returns {string}
+   */
   getMessage(): string {
-    this.setStartLine(this.makeStartLine());
-    return `${this.getStartLine()}${CRLF}${this.makeHeader()}${CRLF}${this.getMessageBody()}`;
+    this.setStartLine(this.makeStatusLine());
+    return new StringBuilder(this.getStartLine()) // status-line
+      .add(CRLF)
+      .add(this.makeHeader()) // header
+      .add(CRLF)
+      .add(this.getMessageBody()) // message-body
+      .build();
   }
 
   setStatusCode(statusCode: number): HttpResponse {
@@ -28,29 +60,30 @@ export class HttpResponse extends HttpMessage {
     return this;
   }
 
-  send(): void {
-    this.socket.write(this.getMessage());
-    this.socket.end();
+  /**
+   * Make the status-line for the HTTP response
+   *
+   * HTTP-Version SP Status-Code SP Reason-Phrase (CRLF)
+   * @returns {string}
+   */
+  private makeStatusLine(): string {
+    return new StringBuilder(`HTTP/${this.getVersion()}`) // HTTP-Version
+      .add(SP)
+      .add(this.statusCode.toString()) // Status-Code
+      .add(SP)
+      .add(this.statusMessage) // Reason-Phrase
+      .build();
   }
 
-  throwError(statusCode: number, message?: string): HttpResponse {
-    this.statusCode = statusCode;
-    this.statusMessage = STATUS_CODES[statusCode];
-    this.setMessageBody(message ? message : this.statusMessage);
-    this.setHeader('Content-Type', `${CONTENT_TYPE.HTML}; charset=utf-8`);
-    return this;
-  }
-
-  private makeStartLine(): string {
-    return `HTTP/${this.getVersion()} ${this.statusCode} ${this.statusMessage}`;
-  }
-
+  /**
+   * Make the header section of the HTTP response
+   * @returns {string}
+   */
   private makeHeader(): string {
     const header: Record<string, string> = this.getHeader();
-    let result = '';
-    for (const key in header) {
-      result += `${key}: ${header[key]}${CRLF}`;
-    }
-    return result;
+    return Object.entries(header).reduce(
+      (acc: string, [key, value]: string[]) => acc + `${key}:${value}${CRLF}`,
+      '',
+    );
   }
 }
