@@ -1,12 +1,12 @@
 import { HttpMethods } from './constants';
 
-export interface ParsedStartLine {
+export interface ParsedRequestLine {
   method?: HttpMethods;
   path?: string;
   version?: string;
 }
 
-export interface ParsedMessage {
+export interface ParsedRequest {
   method: string;
   path: string;
   version: string;
