@@ -73,4 +73,5 @@ export const STATUS_CODES: Record<number, string> = {
   503: 'Service Unavailable',
 };
 
+export const SP: string = ' ';
 export const CRLF: string = '\r\n';
