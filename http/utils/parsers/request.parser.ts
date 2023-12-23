@@ -1,5 +1,5 @@
 import { HttpMethods, METHODS } from '../../constants';
-import { ParsedMessage, ParsedStartLine } from '../../interfaces';
+import { ParsedRequest, ParsedRequestLine } from '../../interfaces';
 import {
   BLANK,
   CONTENT_TYPE,
@@ -7,20 +7,63 @@ import {
   COOKIE_SEP,
   EMPTY_LINE,
   NEWLINE,
+  REQUEST_LINE,
   X_WWW_FORM_URLENCODED,
 } from '../../regexp';
-import { isValidStartline } from '../../valid-check';
 
 /**
- * Parse start-line of http request
- * @param {string} startLine
- * @returns {ParsedStartLine}
+ * Parse the HTTP request message
+ * @param {string} request
+ * @returns {ParsedRequest}
  */
-function parseStartLine(startLine: string): ParsedStartLine {
-  if (!isValidStartline(startLine)) {
+export default function parseRequest(request: string): ParsedRequest {
+  // parse request-line
+  const requestLine: string | undefined = request.split(NEWLINE).at(0);
+  const { method, path, version } = parseRequestLine(requestLine ?? '');
+  if (!method || !path || !version) {
+    throw new Error('Invalid start-line');
+  }
+
+  // parse cookies
+  const cookies: Record<string, string> = parseCookies(request);
+
+  // GET request
+  if (method === METHODS.GET) {
+    const [realPath, queryString] = path.split('?');
+    const query: Record<string, string> = queryString // parse query string
+      ? parseQuery(queryString)
+      : {};
+    return { method, path: realPath, version, cookies, query };
+  }
+
+  const lastLine: string | undefined = request.split(EMPTY_LINE).at(-1);
+  const contentTypeMatch: RegExpMatchArray | null = request.match(CONTENT_TYPE);
+
+  if (contentTypeMatch) {
+    const contentType: string | undefined =
+      contentTypeMatch.groups?.contentType;
+    // x-www-form-urlencoded
+    if (contentType && X_WWW_FORM_URLENCODED.test(contentType)) {
+      const body: Record<string, string> | undefined = parseQuery(
+        decodeURIComponent(lastLine?.replace(/\+/g, ' ') ?? ''),
+      );
+      return { method, path, version, cookies, query: undefined, body };
+    }
+  }
+  const body: any = JSON.parse(lastLine ?? '');
+  return { method, path, version, cookies, query: undefined, body };
+}
+
+/**
+ * Parse the request-line of HTTP request
+ * @param {string} requestLine
+ * @returns {ParsedRequestLine}
+ */
+function parseRequestLine(requestLine: string): ParsedRequestLine {
+  if (!isValidRequestline(requestLine)) {
     return {};
   }
-  const splits: string[] = startLine
+  const splits: string[] = requestLine
     .split(BLANK)
     .map((s) => s.replace('#', '')); // remove fragment
   return {
@@ -31,12 +74,12 @@ function parseStartLine(startLine: string): ParsedStartLine {
 }
 
 /**
- * Parse cookies of http request
- * @param {string} message
+ * Parse the cookies of the HTTP request
+ * @param {string} request
  * @returns {Record<string, string>}
  */
-function parseCookies(message: string): Record<string, string> {
-  const match: RegExpMatchArray | null = message.match(COOKIE);
+function parseCookies(request: string): Record<string, string> {
+  const match: RegExpMatchArray | null = request.match(COOKIE);
   if (!match) {
     return {};
   }
@@ -75,44 +118,10 @@ function parseQuery(queryString: string): Record<string, string> {
 }
 
 /**
- * Parse http message
- * @param {string} message
- * @returns {ParsedMessage}
+ * Check if the HTTP request-line is valid
+ * @param {string} requestLine
+ * @returns {boolean}
  */
-export default function parseMessage(message: string): ParsedMessage {
-  // parse start-line
-  const startLine: string | undefined = message.split(NEWLINE).at(0);
-  const { method, path, version } = parseStartLine(startLine ?? '');
-  if (!method || !path || !version) {
-    throw new Error('Invalid start-line');
-  }
-
-  // parse cookies
-  const cookies: Record<string, string> = parseCookies(message);
-
-  // GET request
-  if (method === METHODS.GET) {
-    const [realPath, queryString] = path.split('?');
-    const query: Record<string, string> = queryString // parse query string
-      ? parseQuery(queryString)
-      : {};
-    return { method, path: realPath, version, cookies, query };
-  }
-
-  const lastLine: string | undefined = message.split(EMPTY_LINE).at(-1);
-  const contentTypeMatch: RegExpMatchArray | null = message.match(CONTENT_TYPE);
-
-  if (contentTypeMatch) {
-    const contentType: string | undefined =
-      contentTypeMatch.groups?.contentType;
-    // x-www-form-urlencoded
-    if (contentType && X_WWW_FORM_URLENCODED.test(contentType)) {
-      const body: Record<string, string> | undefined = parseQuery(
-        decodeURIComponent(lastLine?.replace(/\+/g, ' ') ?? ''),
-      );
-      return { method, path, version, cookies, query: undefined, body };
-    }
-  }
-  const body: any = JSON.parse(lastLine ?? '');
-  return { method, path, version, cookies, query: undefined, body };
+function isValidRequestline(requestLine: string): boolean {
+  return REQUEST_LINE.test(requestLine);
 }

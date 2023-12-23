@@ -1,5 +1,5 @@
 import HttpMessage from './message';
-import parseMessage from './utils/parsers/request.parser';
+import parseRequest from './utils/parsers/request.parser';
 
 export class HttpRequest extends HttpMessage {
   private method: string;
@@ -12,7 +12,7 @@ export class HttpRequest extends HttpMessage {
     super();
     try {
       const { method, path, version, cookies, query, body } =
-        parseMessage(data);
+        parseRequest(data);
       this.method = method;
       this.path = path;
       this.setVersion(version);
