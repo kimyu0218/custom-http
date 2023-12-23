@@ -1,5 +1,5 @@
 import HttpMessage from './message';
-import parseMessage from './parser';
+import parseMessage from './utils/parsers/request.parser';
 
 export class HttpRequest extends HttpMessage {
   private method: string;
