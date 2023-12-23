@@ -1,5 +1,5 @@
-import { HttpMethods, METHODS } from './constants';
-import { ParsedMessage, ParsedStartLine } from './interfaces';
+import { HttpMethods, METHODS } from '../../constants';
+import { ParsedMessage, ParsedStartLine } from '../../interfaces';
 import {
   BLANK,
   CONTENT_TYPE,
@@ -8,8 +8,8 @@ import {
   EMPTY_LINE,
   NEWLINE,
   X_WWW_FORM_URLENCODED,
-} from './regexp';
-import { isValidStartline } from './valid-check';
+} from '../../regexp';
+import { isValidStartline } from '../../valid-check';
 
 /**
  * Parse start-line of http request
