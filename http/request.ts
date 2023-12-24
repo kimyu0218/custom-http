@@ -4,32 +4,25 @@ import parseRequest from './utils/parsers/request.parser';
 export class HttpRequest extends HttpMessage {
   private method: string;
   private path: string;
-  private query?: Record<string, string>;
-  private cookies?: Record<string, string>;
+  private query?: Map<string, string> = new Map();
+  private cookies?: Map<string, string> = new Map();
   private params: Map<string, string> = new Map();
 
   constructor(data: string) {
     super();
-    try {
-      const { method, path, version, cookies, query, body } =
-        parseRequest(data);
-      this.method = method;
-      this.path = path;
-      this.setVersion(version);
-      this.cookies = cookies;
-      this.query = query;
-      if (body) {
-        this.setMessageBody(body);
-      }
-    } catch (err: unknown) {
-      /**
-       * error handling
-       */
+    const { method, path, version, cookies, query, body } = parseRequest(data);
+    this.method = method;
+    this.path = path;
+    this.setVersion(version);
+    this.cookies = cookies;
+    this.query = query;
+    if (body) {
+      this.setMessageBody(body);
     }
   }
 
   getCookie(name: string): string | null {
-    return this.cookies?.[name] ?? null;
+    return this.cookies.get(name) ?? null;
   }
 
   getMethod(): string {
@@ -40,12 +33,12 @@ export class HttpRequest extends HttpMessage {
     return this.path;
   }
 
-  getQuery(): Record<string, string> | null {
-    return this.query ?? null;
+  getQuery(): Map<string, string> {
+    return this.query;
   }
 
-  getCookies(): Record<string, string> | null {
-    return this.cookies ?? null;
+  getCookies(): Map<string, string> {
+    return this.cookies;
   }
 
   setParams(key: string, value: string): HttpRequest {

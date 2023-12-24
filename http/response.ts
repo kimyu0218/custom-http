@@ -80,7 +80,7 @@ export class HttpResponse extends HttpMessage {
    * @returns {string}
    */
   private makeHeader(): string {
-    const header: Record<string, string> = this.getHeader();
+    const header: Map<string, string> = this.getHeader();
     return Object.entries(header).reduce(
       (acc: string, [key, value]: string[]) => acc + `${key}:${value}${CRLF}`,
       '',
