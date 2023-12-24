@@ -75,3 +75,5 @@ export const STATUS_CODES: Record<number, string> = {
 
 export const SP: string = ' ';
 export const CRLF: string = '\r\n';
+export const X_WWW_FORM_URLENCODED: string =
+  'application/x-www-form-urlencoded';
