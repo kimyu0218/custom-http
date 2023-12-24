@@ -1,7 +1,7 @@
 export default class HttpMessage {
   private startLine?: string;
   private version?: string;
-  private header: Record<string, string> = {};
+  private header: Map<string, string> = new Map();
   private messageBody: any;
 
   getStartLine(): string | null {
@@ -12,7 +12,7 @@ export default class HttpMessage {
     return this.version ?? null;
   }
 
-  getHeader(): Record<string, string> {
+  getHeader(): Map<string, string> {
     return this.header;
   }
 
@@ -31,7 +31,7 @@ export default class HttpMessage {
   }
 
   setHeader(key: string, value: string): this {
-    this.header[key] = value;
+    this.header.set(key, value);
     return this;
   }
 
