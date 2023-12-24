@@ -4,8 +4,8 @@ import parseRequest from './utils/parsers/request.parser';
 export class HttpRequest extends HttpMessage {
   private method: string;
   private path: string;
-  private query?: Map<string, string> = new Map();
-  private cookies?: Map<string, string> = new Map();
+  private query: Map<string, string> = new Map();
+  private cookies: Map<string, string> = new Map();
   private params: Map<string, string> = new Map();
 
   constructor(data: string) {
@@ -21,10 +21,6 @@ export class HttpRequest extends HttpMessage {
     }
   }
 
-  getCookie(name: string): string | null {
-    return this.cookies.get(name) ?? null;
-  }
-
   getMethod(): string {
     return this.method;
   }
@@ -37,11 +33,15 @@ export class HttpRequest extends HttpMessage {
     return this.query;
   }
 
-  getCookies(): Map<string, string> {
-    return this.cookies;
+  getCookie(key: string): string | null {
+    return this.cookies.get(key) ?? null;
   }
 
-  setParams(key: string, value: string): HttpRequest {
+  getParam(key: string): string | null {
+    return this.params.get(key) ?? null;
+  }
+
+  setParam(key: string, value: string): HttpRequest {
     this.params.set(key, value);
     return this;
   }
