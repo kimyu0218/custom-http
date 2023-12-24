@@ -10,21 +10,14 @@ export class HttpRequest extends HttpMessage {
 
   constructor(data: string) {
     super();
-    try {
-      const { method, path, version, cookies, query, body } =
-        parseRequest(data);
-      this.method = method;
-      this.path = path;
-      this.setVersion(version);
-      this.cookies = cookies;
-      this.query = query;
-      if (body) {
-        this.setMessageBody(body);
-      }
-    } catch (err: unknown) {
-      /**
-       * error handling
-       */
+    const { method, path, version, cookies, query, body } = parseRequest(data);
+    this.method = method;
+    this.path = path;
+    this.setVersion(version);
+    this.cookies = cookies;
+    this.query = query;
+    if (body) {
+      this.setMessageBody(body);
     }
   }
 
