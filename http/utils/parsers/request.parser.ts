@@ -1,15 +1,14 @@
-import { HttpMethods, METHODS } from '../../constants';
-import { ParsedRequest, ParsedRequestLine } from '../../interfaces';
 import {
-  BLANK,
-  CONTENT_TYPE,
-  COOKIE,
-  COOKIE_SEP,
-  EMPTY_LINE,
-  NEWLINE,
-  REQUEST_LINE,
+  CRLF,
+  HttpMethods,
+  METHODS,
+  SP,
   X_WWW_FORM_URLENCODED,
-} from '../regexp';
+} from '../../constants';
+import { ParsedRequest, ParsedRequestLine } from '../../interfaces';
+import { EMPTY_LINE, NEW_LINE, REQUEST_LINE } from '../regexp';
+import { parseCookies, parseHeader } from './header.parser';
+import parseQuery from './query.parser';
 
 /**
  * Parse the HTTP request message
@@ -18,40 +17,45 @@ import {
  */
 export default function parseRequest(request: string): ParsedRequest {
   // parse request-line
-  const requestLine: string | undefined = request.split(NEWLINE).at(0);
-  const { method, path, version } = parseRequestLine(requestLine ?? '');
-  if (!method || !path || !version) {
+  const requestLine: string = request.split(NEW_LINE).at(0) + CRLF;
+  const { method, uri, version } = parseRequestLine(requestLine);
+  if (!method || !uri || !version) {
     throw new Error('Invalid start-line');
   }
 
+  const [headerStr, bodyStr]: string[] = request
+    .replace(requestLine, '')
+    .split(EMPTY_LINE);
+
+  // parse header
+  const header: Map<string, string> = parseHeader(headerStr);
+
   // parse cookies
-  const cookies: Record<string, string> = parseCookies(request);
+  const cookieValue: string = header.get('Cookies');
+  const cookies: Map<string, string> = cookieValue
+    ? parseCookies(cookieValue)
+    : new Map();
 
   // GET request
   if (method === METHODS.GET) {
-    const [realPath, queryString] = path.split('?');
-    const query: Record<string, string> = queryString // parse query string
+    const [path, queryString] = uri.split('?');
+    const query: Map<string, string> = queryString // parse query string
       ? parseQuery(queryString)
-      : {};
-    return { method, path: realPath, version, cookies, query };
+      : new Map();
+    return { method, path: path, version, cookies, query };
   }
 
-  const lastLine: string | undefined = request.split(EMPTY_LINE).at(-1);
-  const contentTypeMatch: RegExpMatchArray | null = request.match(CONTENT_TYPE);
-
-  if (contentTypeMatch) {
-    const contentType: string | undefined =
-      contentTypeMatch.groups?.contentType;
-    // x-www-form-urlencoded
-    if (contentType && X_WWW_FORM_URLENCODED.test(contentType)) {
-      const body: Record<string, string> | undefined = parseQuery(
-        decodeURIComponent(lastLine?.replace(/\+/g, ' ') ?? ''),
-      );
-      return { method, path, version, cookies, query: undefined, body };
-    }
+  // x-www-form-urlencoded
+  const contentType: string = header.get('Content-Type');
+  if (contentType === X_WWW_FORM_URLENCODED) {
+    const body: Map<string, string> = parseQuery(
+      decodeURIComponent(bodyStr?.replace(/\+/g, ' ') ?? ''),
+    );
+    return { method, path: uri, version, cookies, query: undefined, body };
   }
-  const body: any = JSON.parse(lastLine ?? '');
-  return { method, path, version, cookies, query: undefined, body };
+
+  const body: any = JSON.parse(bodyStr ?? '');
+  return { method, path: uri, version, cookies, query: undefined, body };
 }
 
 /**
@@ -63,62 +67,16 @@ function parseRequestLine(requestLine: string): ParsedRequestLine {
   if (!isValidRequestline(requestLine)) {
     return {};
   }
-  const splits: string[] = requestLine
-    .split(BLANK)
-    .map((s) => s.replace('#', '')); // remove fragment
+  const splits: string[] = requestLine.split(SP).map((s) => s.replace('#', '')); // remove fragment
   return {
     method: splits.at(0) as HttpMethods,
-    path: splits.at(1),
+    uri: splits.at(1),
     version: splits.at(2),
   };
 }
 
 /**
- * Parse the cookies of the HTTP request
- * @param {string} request
- * @returns {Record<string, string>}
- */
-function parseCookies(request: string): Record<string, string> {
-  const match: RegExpMatchArray | null = request.match(COOKIE);
-  if (!match) {
-    return {};
-  }
-  const cookieStr: string[] | undefined =
-    match.groups?.cookies.split(COOKIE_SEP);
-  return !cookieStr
-    ? {}
-    : cookieStr.reduce<Record<string, string>>(
-        (acc: Record<string, string>, curr: string) => {
-          const [key, value]: string[] = curr.split('=');
-          acc[key] = value;
-          return acc;
-        },
-        {},
-      );
-}
-
-/**
- * Parse query string of path
- * @param {string} queryString
- * @returns {Record<string, string>}
- */
-function parseQuery(queryString: string): Record<string, string> {
-  if (!queryString) {
-    return {};
-  }
-  const query: string[] = queryString.split('&');
-  return query.reduce<Record<string, string>>(
-    (acc: Record<string, string>, curr: string) => {
-      const [key, value] = curr.split('=');
-      acc[key] = value;
-      return acc;
-    },
-    {},
-  );
-}
-
-/**
- * Check if the HTTP request-line is valid
+ * Check if the request-line is valid
  * @param {string} requestLine
  * @returns {boolean}
  */
