@@ -1,3 +1,4 @@
+import { InvalidRequestLineError } from 'http/errors/invalid-request-line.error';
 import {
   CRLF,
   HttpMethods,
@@ -20,7 +21,7 @@ export default function parseRequest(request: string): ParsedRequest {
   const requestLine: string = request.split(NEW_LINE).at(0) + CRLF;
   const { method, uri, version } = parseRequestLine(requestLine);
   if (!method || !uri || !version) {
-    throw new Error('Invalid start-line');
+    throw new InvalidRequestLineError();
   }
 
   const [headerStr, bodyStr]: string[] = request
