@@ -8,8 +8,9 @@ export class HttpResponse extends HttpMessage {
   private statusCode: number = 200;
   private statusMessage: string = STATUS_CODES[200];
 
-  constructor(socket: Socket) {
+  constructor(socket: Socket, version: string) {
     super();
+    this.setVersion(version);
     this.socket = socket;
   }
 
