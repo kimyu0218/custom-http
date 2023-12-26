@@ -2,7 +2,7 @@ import { CRLF, SP } from '../constants';
 import RegExpBuilder from './builders/regexp.builder';
 
 const METHODS: string = 'GET|HEAD|PUT|POST|PATCH|DELETE|TRACE|OPTIONS';
-const VERSIONS: string = '0.9|1.0|2|3';
+const VERSIONS: string = '0.9|1.0|1.1|2|3';
 
 export const NEW_LINE: RegExp = /\r\n/g;
 export const EMPTY_LINE: RegExp = /\r\n\r\n/;
