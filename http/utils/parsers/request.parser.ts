@@ -68,11 +68,11 @@ function parseRequestLine(requestLine: string): ParsedRequestLine {
   if (!isValidRequestline(requestLine)) {
     return {};
   }
-  const splits: string[] = requestLine.split(SP).map((s) => s.replace('#', '')); // remove fragment
+  const splits: string[] = requestLine.split(SP);
   return {
-    method: splits.at(0) as HttpMethods,
+    method: splits.at(0).replace('#', '') as HttpMethods, // remove fragment
     uri: splits.at(1),
-    version: splits.at(2),
+    version: splits.at(2).replace(CRLF, ''), // remove CRLF
   };
 }
 
