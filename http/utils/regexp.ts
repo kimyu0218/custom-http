@@ -20,7 +20,5 @@ export const REQUEST_LINE: RegExp = new RegExpBuilder(`^(${METHODS})`) // Method
 // Message Headers: field-name: field-value
 export const HEADER: RegExp = new RegExpBuilder(`^(?<fieldName>[\\w-]+):`) // field-name
   .add(SP)
-  .add('(?<fieldValue>[\\s\\S]*?)') // field-value
-  .add('(?=\\n(?:\\n|$))')
-  .setFlags('gm')
+  .add('(?<fieldValue>[^\r\n]+)') // field-value
   .build();
