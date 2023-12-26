@@ -54,8 +54,7 @@ export default function parseRequest(request: string): ParsedRequest {
     );
     return { method, path: uri, version, cookies, query: undefined, body };
   }
-
-  const body: any = JSON.parse(bodyStr ?? '');
+  const body: any = bodyStr ? JSON.parse(bodyStr) : '';
   return { method, path: uri, version, cookies, query: undefined, body };
 }
 
@@ -70,8 +69,8 @@ function parseRequestLine(requestLine: string): ParsedRequestLine {
   }
   const splits: string[] = requestLine.split(SP);
   return {
-    method: splits.at(0).replace('#', '') as HttpMethods, // remove fragment
-    uri: splits.at(1),
+    method: splits.at(0) as HttpMethods,
+    uri: splits.at(1).replace('#', ''), // remove fragment
     version: splits.at(2).replace(CRLF, ''), // remove CRLF
   };
 }
