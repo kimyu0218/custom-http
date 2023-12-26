@@ -42,11 +42,19 @@ export class HttpResponse extends HttpMessage {
    */
   getMessage(): string {
     this.setStartLine(this.makeStatusLine());
+    const contentType: string = this.getHeader('Content-Type');
+
+    // JSON to String
+    const messageBody: any =
+      contentType === CONTENT_TYPE.JSON
+        ? JSON.stringify(this.getMessageBody())
+        : this.getMessageBody();
+
     return new StringBuilder(this.getStartLine()) // status-line
       .add(CRLF)
       .add(this.makeHeader()) // header
       .add(CRLF)
-      .add(this.getMessageBody()) // message-body
+      .add(messageBody) // message-body
       .build();
   }
 
@@ -81,7 +89,7 @@ export class HttpResponse extends HttpMessage {
    * @returns {string}
    */
   private makeHeader(): string {
-    const header: Map<string, string> = this.getHeader();
+    const header: Map<string, string> = this.getHeaders();
     return Object.entries(header).reduce(
       (acc: string, [key, value]: string[]) => acc + `${key}:${value}${CRLF}`,
       '',
