@@ -68,7 +68,7 @@ export class HttpResponse extends HttpMessage {
    * @returns {string}
    */
   private makeStatusLine(): string {
-    return new StringBuilder(`HTTP/${this.getVersion()}`) // HTTP-Version
+    return new StringBuilder(this.getVersion()) // HTTP-Version
       .add(SP)
       .add(this.statusCode.toString()) // Status-Code
       .add(SP)
