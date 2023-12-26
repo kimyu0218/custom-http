@@ -12,7 +12,11 @@ export default class HttpMessage {
     return this.version ?? null;
   }
 
-  getHeader(): Map<string, string> {
+  getHeader(key: string): string {
+    return this.header.get(key) ?? null;
+  }
+
+  getHeaders(): Map<string, string> {
     return this.header;
   }
 
