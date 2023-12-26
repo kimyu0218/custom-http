@@ -4,7 +4,10 @@
  * @param {string} route
  * @returns {Map<string, string>}
  */
-export function parseParam(uri: string, route: string): Map<string, string> {
+export default function parseParam(
+  uri: string,
+  route: string,
+): Map<string, string> {
   const uriSegments: string[] = uri.split('/').slice(1);
   const routeSegments: string[] = route.split('/').slice(1);
 

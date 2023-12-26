@@ -33,11 +33,11 @@ export class HttpRequest extends HttpMessage {
     return this.query;
   }
 
-  getCookie(key: string): string | null {
+  getCookie(key: string): string {
     return this.cookies.get(key) ?? null;
   }
 
-  getParam(key: string): string | null {
+  getParam(key: string): string {
     return this.params.get(key) ?? null;
   }
 

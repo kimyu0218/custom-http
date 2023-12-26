@@ -4,11 +4,11 @@ export default class HttpMessage {
   private header: Map<string, string> = new Map();
   private messageBody: any;
 
-  getStartLine(): string | null {
+  getStartLine(): string {
     return this.startLine ?? null;
   }
 
-  getVersion(): string | null {
+  getVersion(): string {
     return this.version ?? null;
   }
 
