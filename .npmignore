@@ -31,4 +31,4 @@ tsconfig*.json
 .prettierrc
 index.ts
 
-http/
+http/**
