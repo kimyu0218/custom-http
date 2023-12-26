@@ -46,7 +46,7 @@ export class HttpResponse extends HttpMessage {
       .add(CRLF)
       .add(this.makeHeader()) // header
       .add(CRLF)
-      .add(this.getMessageBody()) // message-body
+      .add(JSON.stringify(this.getMessageBody())) // message-body
       .build();
   }
 
