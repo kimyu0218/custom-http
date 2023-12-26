@@ -9,7 +9,7 @@ export function parseParam(uri: string, route: string): Map<string, string> {
   const routeSegments: string[] = route.split('/').slice(1);
 
   // find the indexes of the params
-  const idxs: number[] = uriSegments
+  const idxs: number[] = routeSegments
     .map((item: string, idx: number) => (item[0] === ':' ? idx : undefined))
     .filter((item: number | undefined) => item !== undefined);
 
